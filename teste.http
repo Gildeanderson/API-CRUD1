@@ -1,0 +1,34 @@
+### 1. Testar Conexão Principal
+GET http://127.0.0.1:8000/
+
+###
+
+### 2. Testar CRIAÇÃO DE USUÁRIO (Create)
+POST http://127.0.0.1:8000/usuarios/
+Content-Type: application/json
+
+{
+    "nome": "Gildeanderson",
+    "email": "gildeanderson@exemplo.com"
+}
+
+###
+
+### 3. Listar TODOS os usuários (Read)
+GET http://127.0.0.1:8000/usuarios/
+
+###
+
+### 4. Atualizar um usuário (Update - coloque o ID no fim do link)
+PUT http://127.0.0.1:8000/usuarios/2
+Content-Type: application/json
+
+{
+    "nome": "Gilde Ssantos",
+    "email": "vvvnovo@exemplo.com"
+}
+
+###
+
+### 5. Deletar um usuário (Delete - coloque o ID no fim do link)
+DELETE http://127.0.0.1:8000/usuarios/1

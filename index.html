@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel VIP - Alunos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --primary: #3b82f6;
+            --primary-hover: #60a5fa;
+            --danger: #ef4444;
+            --success: #10b981;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--bg-color) 0%, #17103a 100%);
+            color: var(--text-main);
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 3rem 1rem;
+            box-sizing: border-box;
+        }
+
+        .header { text-align: center; margin-bottom: 2rem; animation: fadeInDown 0.8s ease; }
+        h1 { font-size: 3rem; font-weight: 800; background: linear-gradient(45deg, #38bdf8, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0; letter-spacing: -1px; }
+        .subtitle { color: var(--text-muted); font-size: 1.1rem; margin-top: 0.5rem; }
+
+        .glass-container {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 750px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+            animation: fadeInUp 0.8s ease;
+        }
+
+        .action-bar { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 1rem; padding-bottom: 1rem; }
+        .action-bar h2 { margin: 0; font-size: 1.5rem; }
+
+        .btn {
+            border: none; color: white; padding: 10px 18px; font-size: 0.95rem; font-weight: 600;
+            border-radius: 10px; cursor: pointer; transition: all 0.2s; font-family: inherit;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3); }
+        .btn:active { transform: translateY(0); }
+        
+        .btn-primary { background: linear-gradient(45deg, var(--primary), #4f46e5); }
+        .btn-success { background: linear-gradient(45deg, var(--success), #059669); }
+        .btn-danger { background: linear-gradient(45deg, var(--danger), #b91c1c); padding: 8px 14px; font-size: 0.85rem;}
+        .btn-edit { background: linear-gradient(45deg, #f59e0b, #d97706); padding: 8px 14px; font-size: 0.85rem;}
+
+        .user-item {
+            display: flex; justify-content: space-between; align-items: center; padding: 1.25rem;
+            border-bottom: 1px solid rgba(255,255,255,0.05); border-left: 3px solid transparent;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .user-item:hover { background: rgba(255, 255, 255, 0.03); transform: translateX(5px); border-left: 3px solid var(--primary); border-radius: 0 12px 12px 0; }
+        .user-item:last-child { border-bottom: none; }
+        
+        .user-info h3 { margin: 0 0 0.4rem 0; font-size: 1.25rem; font-weight: 600; }
+        .user-info p { margin: 0; color: var(--text-muted); font-size: 0.95rem; display: flex; align-items: center; gap: 15px; }
+        .id-badge { background: rgba(59, 130, 246, 0.2); color: var(--primary-hover); padding: 2px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: 800; }
+        
+        .user-actions { display: flex; gap: 10px; opacity: 0.6; transition: opacity 0.3s; }
+        .user-item:hover .user-actions { opacity: 1; }
+
+        /* Estilo do Modal (Popup de Formulário) */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); backdrop-filter: blur(5px);
+            display: none; justify-content: center; align-items: center; z-index: 100;
+            opacity: 0; transition: opacity 0.3s ease;
+        }
+        .modal {
+            background: var(--card-bg); border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(20px);
+            border-radius: 20px; padding: 2rem; width: 90%; max-width: 400px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); transform: translateY(20px); transition: all 0.3s ease;
+        }
+        .modal.active { transform: translateY(0); }
+        .modal h2 { margin-top: 0; margin-bottom: 1.5rem; text-align: center; }
+        
+        .input-group { margin-bottom: 1.25rem; }
+        .input-group label { display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--text-muted); font-weight: 600; }
+        .input-group input {
+            width: 100%; padding: 12px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px; color: white; font-family: inherit; font-size: 1rem; box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+        .input-group input:focus { outline: none; border-color: var(--primary); background: rgba(0,0,0,0.4); }
+        
+        .modal-actions { display: flex; gap: 10px; margin-top: 2rem; }
+        .modal-actions .btn { flex: 1; justify-content: center; }
+        .btn-cancel { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.1); color: white; }
+        .btn-cancel:hover { background: rgba(255,255,255,0.2); }
+
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .loading { text-align: center; color: var(--text-muted); font-style: italic; padding: 2rem; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Dashboard VIP</h1>
+        <p class="subtitle">Integração em Tempo Real (FastAPI + Supabase)</p>
+    </div>
+
+    <!-- Container Principal com Efeito Glassmorphism -->
+    <div class="glass-container">
+        <!-- Barra do Topo -->
+        <div class="action-bar">
+            <h2>Alunos Cadastrados</h2>
+            <div style="display:flex; gap:10px;">
+                <!-- O botão "Criar" fica fixo e bonito na barra de cima -->
+                <button class="btn btn-success" onclick="abrirModal()">+ Novo Aluno</button>
+                <button class="btn btn-primary" onclick="carregarUsuarios()" title="Atualizar Banco de Dados">↻</button>
+            </div>
+        </div>
+        
+        <!-- Lista Dinâmica -->
+        <div id="users-list">
+            <p class="loading">Sincronizando com o banco de dados...</p>
+        </div>
+    </div>
+
+    <!-- Janela Pop-up (Modal) de Formulaŕio -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal" id="modalBox">
+            <h2 id="modalTitle">Adicionar Aluno</h2>
+            <input type="hidden" id="userId">
+            
+            <div class="input-group">
+                <label>Nome Completo</label>
+                <input type="text" id="userName" placeholder="Ex: Gildeanderson" autocomplete="off">
+            </div>
+            
+            <div class="input-group">
+                <label>E-mail</label>
+                <input type="email" id="userEmail" placeholder="Ex: email@exemplo.com" autocomplete="off">
+            </div>
+            
+            <div class="modal-actions">
+                <button class="btn btn-cancel" onclick="fecharModal()">Cancelar</button>
+                <button class="btn btn-success" onclick="salvarUsuario()">💾 Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script de Funcionalidade CRUD HTML -->
+    <script>
+        const API_URL = '/usuarios/';
+
+        // --- READ: Puxar usuários do banco (FastAPI) ---
+        async function carregarUsuarios() {
+            const listContainer = document.getElementById('users-list');
+            listContainer.innerHTML = '<p class="loading">Atualizando...</p>';
+
+            try {
+                const response = await fetch(API_URL);
+                const data = await response.json();
+                
+                listContainer.innerHTML = '';
+                
+                if (data.usuarios && data.usuarios.length > 0) {
+                    data.usuarios.forEach(user => {
+                        // Renderiza o Nome, e-mail e os botões LADO A LADO!
+                        listContainer.innerHTML += `
+                            <div class="user-item">
+                                <div class="user-info">
+                                    <h3>${user.nome}</h3>
+                                    <p>
+                                        <span>📧 ${user.email}</span>
+                                        <span class="id-badge">ID: ${user.id}</span>
+                                    </p>
+                                </div>
+                                <div class="user-actions">
+                                    <button class="btn btn-edit" title="Editar este usuário" onclick="abrirModal('${user.id}', '${user.nome.replace(/'/g, "\\'")}', '${user.email.replace(/'/g, "\\'")}')">✏️ Editar</button>
+                                    <button class="btn btn-danger" title="Apagar definitivamente!" onclick="deletarUsuario('${user.id}')">🗑️ Excluir</button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    // SE NÃO EXISTE NINGUÉM, A LISTA FICA VAZIA, MAS O BOTÃO DE CRIAR LÁ EM CIMA CONTINUA FUNCIONANDO
+                    listContainer.innerHTML = `
+                        <div style="text-align:center; padding: 2rem;">
+                            <p class="loading" style="padding:0; margin-bottom: 1rem;">Nenhum aluno no momento. Clique no botão verde de "Novo Aluno" para começar!</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                listContainer.innerHTML = '<p style="color:#ef4444; text-align:center; padding: 2rem;">Ops! A API do FastAPI não está respondendo. Verifique se o servidor não caiu.</p>';
+            }
+        }
+
+        // --- MODAL: Abrir e Fechar ---
+        function abrirModal(id = null, nome = '', email = '') {
+            const overlay = document.getElementById('modalOverlay');
+            const box = document.getElementById('modalBox');
+
+            overlay.style.display = 'flex';
+            setTimeout(() => {
+                overlay.style.opacity = '1';
+                box.classList.add('active');
+            }, 10);
+
+            // Preenche os dados mágicamente caso seja Edição
+            document.getElementById('userId').value = id || '';
+            document.getElementById('userName').value = nome;
+            document.getElementById('userEmail').value = email;
+            document.getElementById('modalTitle').innerText = id ? 'Editar Aluno' : 'Novo Aluno';
+        }
+
+        function fecharModal() {
+            const overlay = document.getElementById('modalOverlay');
+            const box = document.getElementById('modalBox');
+
+            overlay.style.opacity = '0';
+            box.classList.remove('active');
+            setTimeout(() => {
+                overlay.style.display = 'none';
+            }, 300);
+        }
+
+        // --- CREATE E UPDATE: Salvar Novo ou Editado ---
+        async function salvarUsuario() {
+            const id = document.getElementById('userId').value;
+            const nome = document.getElementById('userName').value;
+            const email = document.getElementById('userEmail').value;
+
+            if(!nome || !email) { 
+                alert("Por favor, preencha todos os campos!"); 
+                return; 
+            }
+
+            // O pulo do gato: Define se vai criar (POST) ou atualizar (PUT /url/id)
+            const method = id ? 'PUT' : 'POST';
+            const url = id ? API_URL + id : API_URL;
+
+            try {
+                const response = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nome, email })
+                });
+
+                if(response.ok) {
+                    fecharModal();
+                    carregarUsuarios(); // atualiza a lista lindamente para ver se funcionou
+                } else {
+                    alert("Erro ao gravar. Cheque se o email já não existe no banco!");
+                }
+            } catch (err) {
+                alert("Erro grave na comunicação com a API.");
+            }
+        }
+
+        // --- DELETE: Excluir Usuário ---
+        async function deletarUsuario(id) {
+            if (confirm("🚨 TEM CERTEZA que deseja excluir permanentemente este aluno do Supabase?")) {
+                try {
+                    const response = await fetch(API_URL + id, { method: 'DELETE' });
+                    if(response.ok) {
+                        carregarUsuarios(); // Apenas atualiza a tela
+                    } else {
+                        alert("Não foi possível excluir.");
+                    }
+                } catch (error) {
+                    alert("A API desconectou.");
+                }
+            }
+        }
+        
+        // Auto-carrega a página pela primeira vez!
+        carregarUsuarios();
+    </script>
+</body>
+</html>
