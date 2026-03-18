@@ -12,7 +12,7 @@ Abra o arquivo `main.py` e procure a linha onde a URL do banco de dados está de
 
 ```python
 # No arquivo main.py:
-SQLALCHEMY_DATABASE_URL = "postgresql://postgres:SuaSenhaAqui@db.ajbocniqqepyhbovixcp.supabase.co:5432/postgres"
+SQLALCHEMY_DATABASE_URL = "SUA SENHA"
 ```
 
 ### 3. Instale as dependências
